@@ -1,0 +1,124 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+desc "Clean Flutter files."
+lane :clean do
+  sh("fvm", "flutter", "clean")
+end
+
+platform :ios do
+  api_key = nil
+
+  before_all do
+    api_key = app_store_connect_api_key(
+      key_id: ENV["API_KEY_ID"],
+      issuer_id: ENV["API_ISSUER_ID"],
+      key_content: ENV["API_KEY_CONTENT"],
+    )
+  end
+  
+  desc "Build iOS project."
+  private_lane :build do |options|
+    match(type: options[:profile], readonly: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
+    sh("fvm", "flutter", "build", "ios", "--release", "--no-codesign")
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "./ios/Runner.xcodeproj",
+      team_id: ENV["TEAM_ID"],
+      bundle_identifier: ENV["APP_IDENTIFIER"],
+      profile_name: ENV["sigh_#{ENV["APP_IDENTIFIER"]}_#{options[:profile]}_profile-name"],
+    )
+    gym(
+      clean: true,
+      configuration: options[:configuration],
+      scheme: "Runner",
+      workspace: "./ios/Runner.xcworkspace/",
+      export_method: options[:export_method],
+      export_team_id: ENV["TEAM_ID"],
+      export_options: {
+        provisioningProfiles: {
+          ENV["APP_IDENTIFIER"] => ENV["sigh_#{ENV["APP_IDENTIFIER"]}_#{options[:profile]}_profile-path"],
+        },
+        signingStyle: "manual",
+      },
+      codesigning_identity: "#{ENV["TEAM_TYPE"]}: #{ENV["TEAM_NAME"]} (#{ENV["TEAM_ID"]})",
+      output_directory: "build/app/outputs/ipa",
+      output_name: "flutter-demo-#{options[:profile]}"
+    )
+  end
+
+  desc "Build iOS project for AdHoc."
+  private_lane :adhoc do
+    build(
+      configuration: "Release",
+      export_method: "ad-hoc",
+      profile: "adhoc",
+    )
+  end
+
+  desc "[Only Administrator!] Fetch certificates and provisioning profiles."
+  lane :certificates do
+    match(type: "development", force_for_new_devices: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
+    match(type: "appstore", force_for_new_devices: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
+    match(type: "adhoc", force_for_new_devices: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
+  end
+  
+  desc "Ship iOS app to Firebase App Distribution."
+  lane :firebase do
+    clean
+    adhoc
+    firebase_app_distribution(
+      app: ENV["FIREBASE_IOS_ID"],
+      groups: ENV["TEST_GROUP"],
+      debug: true,
+      firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"],
+      release_notes: "AdHoc配信のアプリケーション(iOS版)になります。",
+    )
+  end
+
+end
+
+platform :android do
+  
+  desc "Build Android project."
+  private_lane :build do |options|
+    sh("fvm", "flutter", "build", options[:binary], options[:build_type])
+  end
+
+  desc "Assemble Android project for APK."
+  private_lane :assemble do
+    build(
+      binary: "apk",
+      build_type: "--release",
+    )
+  end
+  
+  desc "Ship Android app to Firebase App Distribution."
+  lane :firebase do
+    clean
+    assemble
+    firebase_app_distribution(
+      app: ENV["FIREBASE_ANDROID_ID"],
+      groups: ENV["TEST_GROUP"],
+      apk_path: "./build/app/outputs/apk/release/app-release.apk",
+      debug: true,
+      firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"],
+      release_notes: "AdHoc配信のアプリケーション(Android版)になります。",
+    )
+  end
+
+end

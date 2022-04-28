@@ -1,0 +1,11 @@
+app_identifier(ENV["APP_IDENTIFIER"]) # The bundle identifier of your app
+apple_id(ENV["APPLE_ID"]) # Your Apple email address
+
+team_id(ENV["TEAM_ID"]) # Developer Portal Team ID
+
+json_key_file(ENV["PLAYSTORE_JSON"])
+package_name(ENV["APP_IDENTIFIER"])
+
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
