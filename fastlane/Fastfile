@@ -75,6 +75,8 @@ platform :ios do
     match(type: "development", force_for_new_devices: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
     match(type: "appstore", force_for_new_devices: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
     match(type: "adhoc", force_for_new_devices: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
+    pem(force: true, app_identifier: ENV["APP_IDENTIFIER"], save_private_key: true, username: ENV["APPLE_ID"], development: true)
+    pem(force: true, app_identifier: ENV["APP_IDENTIFIER"], save_private_key: true, username: ENV["APPLE_ID"], development: false)
   end
   
   desc "Ship iOS app to Firebase App Distribution."
