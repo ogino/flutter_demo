@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import "package:firebase_core/firebase_core.dart";
 import "package:firebase_analytics/firebase_analytics.dart";
 import "package:firebase_crashlytics/firebase_crashlytics.dart";
+import "package:firebase_performance/firebase_performance.dart";
 import "package:fcm_config/fcm_config.dart";
 import "package:timezone/timezone.dart";
 
@@ -65,6 +66,8 @@ void main() async {
     if (kDebugMode) {
       print("User granted permission: ${settings.authorizationStatus}");
     }
+    FirebasePerformance performance = FirebasePerformance.instance;
+    performance.setPerformanceCollectionEnabled(true);
     runApp(const MyApp());
   }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack));
 }
