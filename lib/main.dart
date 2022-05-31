@@ -1,5 +1,7 @@
 import "dart:async";
+import "dart:io";
 
+import "package:demo/utils.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:firebase_core/firebase_core.dart";
@@ -7,6 +9,7 @@ import "package:firebase_analytics/firebase_analytics.dart";
 import "package:firebase_crashlytics/firebase_crashlytics.dart";
 import "package:firebase_performance/firebase_performance.dart";
 import "package:fcm_config/fcm_config.dart";
+import "package:flutter/scheduler.dart";
 import "package:timezone/timezone.dart";
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -76,8 +79,7 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static final FirebaseAnalyticsObserver observer =
-  FirebaseAnalyticsObserver(analytics: analytics);
+  static final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
 
   // This widget is the root of your application.
   @override
@@ -97,8 +99,21 @@ class MainPage extends StatelessWidget {
   const MainPage({Key? key, required this.analytics}) : super(key: key);
   final FirebaseAnalytics analytics;
 
+  checkTrackingTransparency() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    final adId = Platform.isAndroid ? await findAdIdAndroid() : await findAdIdIOS();
+    if (adId == zeroId) {
+      analytics.setUserProperty(name: "allow_personalized_ads", value: "false");
+    } else {
+      analytics.setUserProperty(name: "allow_personalized_ads", value: "true");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    SchedulerBinding.instance.addPostFrameCallback((_) => {
+      checkTrackingTransparency(),
+    });
     return Scaffold(
       appBar: AppBar(
         title: const Text("デモ コンテンツ"),
@@ -117,14 +132,14 @@ class MainPage extends StatelessWidget {
               child: const Text("Analytics"),
               onPressed: () async {
                 await analytics.logEvent(
-                    name: "test_event",
-                    parameters: <String, dynamic> {
-                      "string": "Event Name",
-                      "int": 1,
-                      "long": -1,
-                      "double": double.infinity,
-                      "bool": true,
-                    }
+                  name: "test_event",
+                  parameters: <String, dynamic> {
+                    "string": "Event Name",
+                    "int": 1,
+                    "long": -1,
+                    "double": double.infinity,
+                    "bool": true,
+                  }
                 );
               },
             ),
@@ -136,50 +151,50 @@ class MainPage extends StatelessWidget {
                   print("token is ${token ?? ""}");
                 }
                 showDialog<void>(
-                    context: context,
-                    builder: (_) {
-                      return AlertDialog(
-                        title: const Text("通知用デバイストークン"),
-                        content: Text(token ?? ""),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "Cancel"),
-                            child: const Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "OK"),
-                            child: const Text("OK"),
-                          ),
-                        ],
-                      );
-                    }
+                  context: context,
+                  builder: (_) {
+                    return AlertDialog(
+                      title: const Text("通知用デバイストークン"),
+                      content: Text(token ?? ""),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, "Cancel"),
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, "OK"),
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    );
+                  }
                 );
               },
             ),
             ElevatedButton(
-                child: const Text("In-App Messaging"),
-                onPressed: () async {
-                  flutterLocalNotificationsPlugin.zonedSchedule(
-                    0,
-                    "アプリ内通知のテスト",
-                    "これはアプリ内通知のテストメッセージです",
-                    TZDateTime.now(UTC).add(const Duration(seconds: 1)),
-                    NotificationDetails(
-                      android: AndroidNotificationDetails(
-                        channel.id,
-                        channel.name,
-                        channelDescription: channel.description,
-                      ),
-                      iOS: const IOSNotificationDetails(
-                        presentAlert: true,
-                        presentBadge: true,
-                        presentSound: true,
-                      ),
+              child: const Text("In-App Messaging"),
+              onPressed: () async {
+                flutterLocalNotificationsPlugin.zonedSchedule(
+                  0,
+                  "アプリ内通知のテスト",
+                  "これはアプリ内通知のテストメッセージです",
+                  TZDateTime.now(UTC).add(const Duration(seconds: 1)),
+                  NotificationDetails(
+                    android: AndroidNotificationDetails(
+                      channel.id,
+                      channel.name,
+                      channelDescription: channel.description,
                     ),
-                    androidAllowWhileIdle: true,
-                    uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-                  );
-                }
+                    iOS: const IOSNotificationDetails(
+                      presentAlert: true,
+                      presentBadge: true,
+                      presentSound: true,
+                    ),
+                  ),
+                  androidAllowWhileIdle: true,
+                  uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+                );
+              }
             )
           ],
         ),
