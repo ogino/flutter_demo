@@ -66,5 +66,7 @@
 	<string>ローカルネットワークを確認して便利にします。</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>あなたの好みに合った広告が表示されやすくなります。</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>

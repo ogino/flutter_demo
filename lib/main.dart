@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:io";
 
 import "package:demo/utils.dart";
+import "package:demo/webview/cookie_widget.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:firebase_core/firebase_core.dart";
@@ -195,6 +196,12 @@ class MainPage extends StatelessWidget {
                   uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
                 );
               }
+            ),
+            ElevatedButton(
+                child: const Text("WebView-Native Cookie Linkage"),
+                onPressed: () async {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CookieWidget()));
+                }
             )
           ],
         ),

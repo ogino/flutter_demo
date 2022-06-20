@@ -47,6 +47,10 @@ dependencies:
   version: ^2.0.0
   timezone: ^0.8.0
   get: ^4.6.5
+  webview_flutter: ^3.0.4
+  webview_cookie_manager: ^2.0.6
+  modal_bottom_sheet: ^2.0.1
+  format: ^1.1.1
 
 dev_dependencies:
   flutter_test:
