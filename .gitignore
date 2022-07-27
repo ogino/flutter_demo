@@ -47,6 +47,7 @@ app.*.map.json
 
 # fastlane
 /vendor/
+/fastlane/default/
 /fastlane/.env
 /fastlane/.env.*
 /fastlane/report.xml
@@ -55,8 +56,6 @@ app.*.map.json
 /*.pkey
 
 # Android with Firebase
-/android/keystore.properties
-/android/app/develop.keystore
 /android/app/google-services.json
 
 # iOS with Firebase

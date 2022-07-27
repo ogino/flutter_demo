@@ -42,6 +42,14 @@ Clean Flutter files.
 
 Ship iOS app to Firebase App Distribution.
 
+### ios download_ios
+
+```sh
+[bundle exec] fastlane ios download_ios
+```
+
+
+
 ----
 
 

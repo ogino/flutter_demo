@@ -13,11 +13,11 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
-default_platform(:ios)
-
 desc "Clean Flutter files."
 lane :clean do
   sh("fvm", "flutter", "clean")
+  sh("fvm", "flutter", "precache")
+  sh("fvm", "flutter", "pub", "get")
 end
 
 platform :ios do
@@ -30,11 +30,42 @@ platform :ios do
       key_content: ENV["API_KEY_CONTENT"],
     )
   end
-  
+
+  desc "Prepare iOS build."
+  private_lane :prepare do
+    if ENV["UPDATE_IDENTIFIER"] == "true"
+      fastlane_dir = Dir.pwd
+      Dir.chdir("..")
+      root_dir = "#{Dir.pwd}/ios"
+      Dir.chdir("#{fastlane_dir}")
+      update_app_identifier(
+        xcodeproj: "#{root_dir}/Runner.xcodeproj",
+        plist_path: "#{root_dir}/Runner/Info.plist",
+        app_identifier: ENV["APP_IDENTIFIER"],
+      )
+      copy_files(source: "#{fastlane_dir}/#{ENV["FIREBASE_IOS_CONF"]}", destination: "#{root_dir}/Runner/GoogleService-Info.plist")
+    end
+  end
+
+  desc "Teardown iOS build."
+  private_lane :teardown do
+    if ENV["UPDATE_IDENTIFIER"] == "true"
+      fastlane_dir = Dir.pwd
+      Dir.chdir("..")
+      root_dir = "#{Dir.pwd}/ios"
+      Dir.chdir("#{fastlane_dir}")
+      update_app_identifier(
+        xcodeproj: "#{root_dir}/Runner.xcodeproj",
+        plist_path: "#{root_dir}/Runner/Info.plist",
+        app_identifier: "com.dmm.dev",
+      )
+      copy_files(source: "#{fastlane_dir}/firebase/default/GoogleService-Info.plist", destination: "#{root_dir}/Runner/GoogleService-Info.plist")
+    end
+  end
+
   desc "Build iOS project."
   private_lane :build do |options|
     match(type: options[:profile], readonly: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
-    sh("fvm", "flutter", "build", "ios", "--release", "--no-codesign")
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "./ios/Runner.xcodeproj",
@@ -42,6 +73,10 @@ platform :ios do
       bundle_identifier: ENV["APP_IDENTIFIER"],
       profile_name: ENV["sigh_#{ENV["APP_IDENTIFIER"]}_#{options[:profile]}_profile-name"],
     )
+    fastlane_dir = Dir.pwd
+    Dir.chdir("../ios")
+    sh("bundle", "exec", "pod", "install")
+    Dir.chdir("#{fastlane_dir}")
     gym(
       clean: true,
       configuration: options[:configuration],
@@ -57,17 +92,19 @@ platform :ios do
       },
       codesigning_identity: "#{ENV["TEAM_TYPE"]}: #{ENV["TEAM_NAME"]} (#{ENV["TEAM_ID"]})",
       output_directory: "build/app/outputs/ipa",
-      output_name: "flutter-demo-#{options[:profile]}"
+      output_name: "flutter-demo-#{options[:profile]}",
     )
   end
 
   desc "Build iOS project for AdHoc."
   private_lane :adhoc do
+    prepare
     build(
       configuration: "Release",
       export_method: "ad-hoc",
       profile: "adhoc",
     )
+    teardown
   end
 
   desc "[Only Administrator!] Fetch certificates and provisioning profiles."
@@ -78,7 +115,7 @@ platform :ios do
     pem(force: true, app_identifier: ENV["APP_IDENTIFIER"], save_private_key: true, username: ENV["APPLE_ID"], development: true)
     pem(force: true, app_identifier: ENV["APP_IDENTIFIER"], save_private_key: true, username: ENV["APPLE_ID"], development: false)
   end
-  
+
   desc "Ship iOS app to Firebase App Distribution."
   lane :firebase do
     clean
@@ -91,24 +128,76 @@ platform :ios do
       release_notes: "AdHoc配信のアプリケーション(iOS版)になります。",
     )
   end
-
 end
 
 platform :android do
-  
+  desc "Prepare Android build."
+  private_lane :prepare do
+    fastlane_dir = Dir.pwd
+    Dir.chdir("..")
+    root_dir = "#{Dir.pwd}/android"
+    Dir.chdir("#{fastlane_dir}")
+    if ENV["UPDATE_IDENTIFIER"] == "true"
+      android_change_package_identifier(
+        newIdentifier: ENV["APP_IDENTIFIER"],
+        manifest: "#{root_dir}/app/src/main/AndroidManifest.xml",
+      )
+      copy_files(source: "#{fastlane_dir}/#{ENV["FIREBASE_ANDROID_CONF"]}", destination: "#{root_dir}/app/google-services.json")
+    end
+    gradle(
+      project_dir: root_dir,
+      task: "clean",
+    )
+  end
+
+  desc "Teardown Android build."
+  private_lane :teardown do
+    fastlane_dir = Dir.pwd
+    Dir.chdir("..")
+    root_dir = "#{Dir.pwd}/android"
+    Dir.chdir("#{fastlane_dir}")
+    if ENV["UPDATE_IDENTIFIER"] == "true"
+      android_change_package_identifier(
+        newIdentifier: "com.dmm.dev",
+        manifest: "#{root_dir}/app/src/main/AndroidManifest.xml",
+      )
+      copy_files(source: "#{fastlane_dir}/firebase/default/google-services.json", destination: "#{root_dir}/app/google-services.json")
+    end
+    gradle(
+      project_dir: root_dir,
+      task: "clean",
+    )
+  end
+
   desc "Build Android project."
   private_lane :build do |options|
-    sh("fvm", "flutter", "build", options[:binary], options[:build_type])
+    fastlane_dir = Dir.pwd
+    Dir.chdir("..")
+    root_dir = "#{Dir.pwd}/android"
+    Dir.chdir("#{fastlane_dir}")
+    gradle(
+      project_dir: root_dir,
+      task: options[:task],
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => "#{fastlane_dir}/#{ENV["KEYSTORE_FILE"]}",
+        "android.injected.signing.store.password" => ENV["KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["KEYSTORE_ALIAS"],
+        "android.injected.signing.key.password" => ENV["KEYSTORE_ALIAS_PASSWORD"],
+      },
+    )
   end
 
   desc "Assemble Android project for APK."
   private_lane :assemble do
+    prepare
     build(
       binary: "apk",
-      build_type: "--release",
+      task: "assemble",
     )
+    teardown
   end
-  
+
   desc "Ship Android app to Firebase App Distribution."
   lane :firebase do
     clean
@@ -122,5 +211,4 @@ platform :android do
       release_notes: "AdHoc配信のアプリケーション(Android版)になります。",
     )
   end
-
 end
