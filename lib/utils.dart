@@ -1,6 +1,7 @@
 import "package:advertising_id/advertising_id.dart";
 import "package:app_tracking_transparency/app_tracking_transparency.dart";
 import "package:device_info/device_info.dart";
+import "package:firebase_analytics/firebase_analytics.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 import "package:version/version.dart";
@@ -78,3 +79,12 @@ Future<String> findAdIdIOS() async {
   }
   return zeroId;
 }
+
+Future<void> logFirebaseEvent([String name = "", Map<String, Object?>? parameters,
+    AnalyticsCallOptions? callOptions]) async {
+  if (name.isNotEmpty) {
+    FirebaseAnalytics.instance.logEvent(name: name, parameters: parameters,
+        callOptions: callOptions);
+  }
+}
+

@@ -132,16 +132,14 @@ class MainPage extends StatelessWidget {
             ElevatedButton(
               child: const Text("Analytics"),
               onPressed: () async {
-                await analytics.logEvent(
-                  name: "test_event",
-                  parameters: <String, dynamic> {
-                    "string": "Event Name",
-                    "int": 1,
-                    "long": -1,
-                    "double": double.infinity,
-                    "bool": true,
-                  }
-                );
+                const parameters = <String, dynamic> {
+                  "string": "Event Name",
+                  "int": 1,
+                  "long": -1,
+                  "double": double.infinity,
+                  "bool": true,
+                };
+                await logFirebaseEvent("test_event", parameters);
               },
             ),
             ElevatedButton(
