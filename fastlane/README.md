@@ -42,13 +42,13 @@ Clean Flutter files.
 
 Ship iOS app to Firebase App Distribution.
 
-### ios download_ios
+### ios appstoreconnect
 
 ```sh
-[bundle exec] fastlane ios download_ios
+[bundle exec] fastlane ios appstoreconnect
 ```
 
-
+Ship iOS app to Testflight on AppStore Connect.
 
 ----
 
@@ -62,6 +62,14 @@ Ship iOS app to Firebase App Distribution.
 ```
 
 Ship Android app to Firebase App Distribution.
+
+### android playconsole
+
+```sh
+[bundle exec] fastlane android playconsole
+```
+
+Ship to Playstore Internal Test track.
 
 ----
 

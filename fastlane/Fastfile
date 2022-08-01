@@ -107,6 +107,17 @@ platform :ios do
     teardown
   end
 
+  desc "Build iOS project for AdHoc."
+  private_lane :store_build do
+    prepare
+    build(
+      configuration: "Release",
+      export_method: "app-store",
+      profile: "appstore",
+    )
+    teardown
+  end
+
   desc "[Only Administrator!] Fetch certificates and provisioning profiles."
   lane :certificates do
     match(type: "development", force_for_new_devices: true, git_branch: ENV["MATCH_BRANCH"], username: ENV["APPLE_ID"])
@@ -126,6 +137,19 @@ platform :ios do
       debug: true,
       firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"],
       release_notes: "AdHoc配信のアプリケーション(iOS版)になります。",
+    )
+  end
+
+  desc "Ship iOS app to Testflight on AppStore Connect."
+  lane :appstoreconnect do
+    clean
+    store_build
+    upload_to_testflight(
+      api_key: api_key, # Need appstore connect's API keys.
+      skip_submission: false,
+      skip_waiting_for_build_processing: false,
+      verbose: true,
+      changelog: "TestFlight配信のアプリケーション(iOS版)になります。",
     )
   end
 end
@@ -192,10 +216,16 @@ platform :android do
   private_lane :assemble do
     prepare
     build(
-      binary: "apk",
       task: "assemble",
     )
-    teardown
+  end
+
+  desc "Bundle Android project for AAB."
+  private_lane :bundle do
+    prepare
+    build(
+      task: "bundle",
+    )
   end
 
   desc "Ship Android app to Firebase App Distribution."
@@ -210,5 +240,21 @@ platform :android do
       firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"],
       release_notes: "AdHoc配信のアプリケーション(Android版)になります。",
     )
+    teardown
+  end
+
+  desc "Ship to Playstore Internal Test track."
+  lane :playconsole do
+    clean
+    bundle
+    upload_to_play_store(
+      track: "internal",
+      release_status: "draft",
+      track_promote_to: "internal",
+      json_key_data: ENV["PLAYSTORE_JSON_KEY_DATA"],
+      aab: "./build/app/outputs/bundle/release/app-release.aab",
+      package_name: ENV["APP_IDENTIFIER"],
+    )
+    teardown
   end
 end

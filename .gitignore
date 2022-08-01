@@ -60,3 +60,5 @@ app.*.map.json
 
 # iOS with Firebase
 /ios/GoogleService-Info.plist
+/android/keystore.properties
+/fastlane/develop.keystore
