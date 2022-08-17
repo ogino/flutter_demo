@@ -1,7 +1,6 @@
 import "package:demo/webview/web_view_widget.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
-import "package:format/format.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:webview_cookie_manager/webview_cookie_manager.dart";
 
@@ -38,7 +37,7 @@ class CookieWidget extends StatelessWidget {
                   final cookies = await cookieManager.getCookies(url);
                   var text = "";
                   for (var cookie in cookies) {
-                    text += format("{} : {}\n", cookie.name, cookie.value);
+                    text += "${cookie.name} : ${cookie.value}\n";
                   }
                   if (kDebugMode) {
                     print("text is $text");

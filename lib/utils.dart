@@ -88,3 +88,17 @@ Future<void> logFirebaseEvent([String name = "", Map<String, Object?>? parameter
   }
 }
 
+Map<String, String> handleLink(String? link) {
+  if (kDebugMode) {
+    print("link = ${link ?? ""}");
+  }
+  Map<String, String> map = {};
+  if (link != null) {
+    map.addAll({"link" : link});
+    final uri = Uri.parse(link);
+    if (uri.hasQuery) {
+      map.addAll(uri.queryParameters);
+    }
+  }
+  return map;
+}

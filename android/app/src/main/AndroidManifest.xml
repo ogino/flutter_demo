@@ -7,7 +7,7 @@
         <activity
             android:name="bi.miya.app.MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -25,6 +25,25 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <!-- Deep Links -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Fix it -->
+                <data android:scheme="test.test.test" android:host="test.test.test" android:pathPrefix="/test" />
+            </intent-filter>
+            <!-- Universal Links -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Fix it -->
+                <data android:scheme="http" android:host="test.test.test" android:pathPrefix="/test" />
+                <!-- Fix it -->
+                <data android:scheme="https" android:host="test.test.test" android:pathPrefix="/test" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

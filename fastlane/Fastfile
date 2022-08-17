@@ -33,6 +33,7 @@ platform :ios do
 
   desc "Prepare iOS build."
   private_lane :prepare do
+    sh("fvm", "flutter", "build", "ios", "--no-codesign")
     if ENV["UPDATE_IDENTIFIER"] == "true"
       fastlane_dir = Dir.pwd
       Dir.chdir("..")
@@ -157,6 +158,7 @@ end
 platform :android do
   desc "Prepare Android build."
   private_lane :prepare do
+    sh("fvm", "flutter", "build", "apk")
     fastlane_dir = Dir.pwd
     Dir.chdir("..")
     root_dir = "#{Dir.pwd}/android"

@@ -12,6 +12,8 @@ import "package:firebase_performance/firebase_performance.dart";
 import "package:fcm_config/fcm_config.dart";
 import "package:flutter/scheduler.dart";
 import "package:timezone/timezone.dart";
+import 'package:uni_links/uni_links.dart';
+import "package:url_launcher/url_launcher.dart";
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -21,6 +23,8 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
   description: "This channel is used for important notifications.",
   importance: Importance.high,
 );
+
+Map<String, String> parameters = {};
 
 Future<void> backGroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -72,6 +76,21 @@ void main() async {
     }
     FirebasePerformance performance = FirebasePerformance.instance;
     performance.setPerformanceCollectionEnabled(true);
+    final url = await getInitialLink();
+    if (kDebugMode) {
+      print("getInitialLink() - url = ${url ?? ""}");
+    }
+    parameters = handleLink(url);
+    linkStream.listen((String? url) async {
+      if (kDebugMode) {
+        print("linkStream.listen - url = ${url ?? ""}");
+      }
+      parameters = handleLink(url);
+    }, onDone: () {
+      print("linkStream.listen DONE");
+    }, onError: (error) {
+      print("linkStream.listen ERROR = ${error}");
+    });
     runApp(const MyApp());
   }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack));
 }
@@ -200,7 +219,48 @@ class MainPage extends StatelessWidget {
                 onPressed: () async {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const CookieWidget()));
                 }
-            )
+            ),
+            ElevatedButton(
+                child: const Text("Open DynamicLink"),
+                onPressed: () async {
+                  const url = "https://test.test.test/link-test.html"; // FIXME write a valided URL.
+                  if (kDebugMode) {
+                    print("url is $url");
+                  }
+                  launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                }
+            ),
+            ElevatedButton(
+                child: const Text("DynamicLink Parameter Check"),
+              onPressed: () async {
+                var text = "";
+                for (var key in parameters.keys) {
+                  text += "$key : ${parameters[key]}\n";
+                }
+                if (kDebugMode) {
+                  print("text is $text");
+                }
+                showDialog<void>(
+                    context: context,
+                    builder: (_) {
+                      return AlertDialog(
+                        title: const Text("DynamicLinkパラメータ"),
+                        content: Text(text),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, "Cancel"),
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, "OK"),
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      );
+                    }
+                );
+              },
+            ),
           ],
         ),
       ),

@@ -68,5 +68,22 @@
 	<string>あなたの好みに合った広告が表示されやすくなります。</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>test.test.test</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>test.test.test</string>
+            </array>
+        </dict>
+    </array>
+    <key>FirebaseDynamicLinksCustomDomains</key>
+    <array>
+        <string>https://app.miya.bi/link</string>
+    </array>
 </dict>
 </plist>
