@@ -44,8 +44,8 @@ android {
 
     defaultConfig {
         minSdkVersion 19
-        compileSdkVersion 31
-        targetSdkVersion 31
+        compileSdkVersion 33
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true

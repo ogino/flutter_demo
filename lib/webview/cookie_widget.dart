@@ -21,28 +21,27 @@ class CookieWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              child: const Text("WebViewを表示"),
-              onPressed: () {
-                showCupertinoModalBottomSheet(
-                  expand: true,
-                  useRootNavigator: true,
-                  context: context,
-                  builder: (context) => WebViewWidget(cookieManager: cookieManager, url: url)
-                );
-              }
-            ),
+                child: const Text("WebViewを表示"),
+                onPressed: () {
+                  showCupertinoModalBottomSheet(
+                      expand: true,
+                      useRootNavigator: true,
+                      context: context,
+                      builder: (context) => WebViewWidget(
+                          cookieManager: cookieManager, url: url));
+                }),
             ElevatedButton(
-                child: const Text("Cookieを表示"),
-                onPressed: () async {
-                  final cookies = await cookieManager.getCookies(url);
-                  var text = "";
-                  for (var cookie in cookies) {
-                    text += "${cookie.name} : ${cookie.value}\n";
-                  }
-                  if (kDebugMode) {
-                    print("text is $text");
-                  }
-                  showDialog<void>(
+              child: const Text("Cookieを表示"),
+              onPressed: () async {
+                final cookies = await cookieManager.getCookies(url);
+                var text = "";
+                for (var cookie in cookies) {
+                  text += "${cookie.name} : ${cookie.value}\n";
+                }
+                if (kDebugMode) {
+                  print("text is $text");
+                }
+                showDialog<void>(
                     context: context,
                     builder: (_) {
                       return AlertDialog(
@@ -59,10 +58,9 @@ class CookieWidget extends StatelessWidget {
                           ),
                         ],
                       );
-                    }
-                  );
-                },
-              ),
+                    });
+              },
+            ),
           ],
         ),
       ),

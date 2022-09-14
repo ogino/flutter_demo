@@ -1,6 +1,6 @@
 import "package:advertising_id/advertising_id.dart";
 import "package:app_tracking_transparency/app_tracking_transparency.dart";
-import "package:device_info/device_info.dart";
+import "package:device_info_plus/device_info_plus.dart";
 import "package:firebase_analytics/firebase_analytics.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
@@ -9,7 +9,7 @@ import "package:version/version.dart";
 Future<String> findOSVersionIOS() async {
   try {
     final info = await DeviceInfoPlugin().iosInfo;
-    return info.systemVersion;
+    return info.systemVersion ?? "15.0";
   } on PlatformException {
     return "15.0";
   }
@@ -41,13 +41,15 @@ Future<String> findAdIdIOS() async {
       print("version is $version");
     }
     if (version >= Version.parse("14.5")) {
-      final TrackingStatus trackStatus = await AppTrackingTransparency.trackingAuthorizationStatus;
+      final TrackingStatus trackStatus =
+          await AppTrackingTransparency.trackingAuthorizationStatus;
       if (kDebugMode) {
         print("trackStatus is $trackStatus");
       }
       if (trackStatus == TrackingStatus.notDetermined) {
         await Future.delayed(const Duration(milliseconds: 200));
-        final status = await AppTrackingTransparency.requestTrackingAuthorization();
+        final status =
+            await AppTrackingTransparency.requestTrackingAuthorization();
         if (kDebugMode) {
           print("status is $status");
         }
@@ -80,11 +82,13 @@ Future<String> findAdIdIOS() async {
   return zeroId;
 }
 
-Future<void> logFirebaseEvent([String name = "", Map<String, Object?>? parameters,
+Future<void> logFirebaseEvent(
+    [String name = "",
+    Map<String, Object?>? parameters,
     AnalyticsCallOptions? callOptions]) async {
   if (name.isNotEmpty) {
-    FirebaseAnalytics.instance.logEvent(name: name, parameters: parameters,
-        callOptions: callOptions);
+    FirebaseAnalytics.instance
+        .logEvent(name: name, parameters: parameters, callOptions: callOptions);
   }
 }
 
@@ -94,7 +98,7 @@ Map<String, String> handleLink(String? link) {
   }
   Map<String, String> map = {};
   if (link != null) {
-    map.addAll({"link" : link});
+    map.addAll({"link": link});
     final uri = Uri.parse(link);
     if (uri.hasQuery) {
       map.addAll(uri.queryParameters);

@@ -15,7 +15,8 @@ import "package:timezone/timezone.dart";
 import 'package:uni_links/uni_links.dart';
 import "package:url_launcher/url_launcher.dart";
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   "high_importance_channel", // id
@@ -32,7 +33,8 @@ Future<void> backGroundHandler(RemoteMessage message) async {
     print("[BACKGROUND] Handling a BACKGROUND message: ${message.messageId}");
     print("[BACKGROUND] Message data: ${message.data}");
     if (message.notification != null) {
-      print("[BACKGROUND] Message also contained a notification: ${message.notification}");
+      print(
+          "[BACKGROUND] Message also contained a notification: ${message.notification}");
     }
   }
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
@@ -44,20 +46,25 @@ void main() async {
     await Firebase.initializeApp();
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
     await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
     FirebaseMessaging.onBackgroundMessage(backGroundHandler);
-    FCMConfig.instance.init(onBackgroundMessage: backGroundHandler, defaultAndroidChannel: channel);
+    FCMConfig.instance.init(
+        onBackgroundMessage: backGroundHandler, defaultAndroidChannel: channel);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
-        print("[FOREGROUND] Handling a FOREGROUND message: ${message.messageId}");
+        print(
+            "[FOREGROUND] Handling a FOREGROUND message: ${message.messageId}");
         print("[FOREGROUND] Message data: ${message.data}");
         if (message.notification != null) {
-          print("[FOREGROUND] Message also contained a notification: ${message.notification}");
+          print(
+              "[FOREGROUND] Message also contained a notification: ${message.notification}");
         }
       }
     });
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -87,9 +94,13 @@ void main() async {
       }
       parameters = handleLink(url);
     }, onDone: () {
-      print("linkStream.listen DONE");
+      if (kDebugMode) {
+        print("linkStream.listen DONE");
+      }
     }, onError: (error) {
-      print("linkStream.listen ERROR = ${error}");
+      if (kDebugMode) {
+        print("linkStream.listen ERROR = $error");
+      }
     });
     runApp(const MyApp());
   }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack));
@@ -99,7 +110,8 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+  static final FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
 
   // This widget is the root of your application.
   @override
@@ -121,7 +133,8 @@ class MainPage extends StatelessWidget {
 
   checkTrackingTransparency() async {
     await Future.delayed(const Duration(milliseconds: 500));
-    final adId = Platform.isAndroid ? await findAdIdAndroid() : await findAdIdIOS();
+    final adId =
+        Platform.isAndroid ? await findAdIdAndroid() : await findAdIdIOS();
     if (adId == zeroId) {
       analytics.setUserProperty(name: "allow_personalized_ads", value: "false");
     } else {
@@ -132,8 +145,8 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SchedulerBinding.instance.addPostFrameCallback((_) => {
-      checkTrackingTransparency(),
-    });
+          checkTrackingTransparency(),
+        });
     return Scaffold(
       appBar: AppBar(
         title: const Text("デモ コンテンツ"),
@@ -151,7 +164,7 @@ class MainPage extends StatelessWidget {
             ElevatedButton(
               child: const Text("Analytics"),
               onPressed: () async {
-                const parameters = <String, dynamic> {
+                const parameters = <String, dynamic>{
                   "string": "Event Name",
                   "int": 1,
                   "long": -1,
@@ -169,69 +182,71 @@ class MainPage extends StatelessWidget {
                   print("token is ${token ?? ""}");
                 }
                 showDialog<void>(
-                  context: context,
-                  builder: (_) {
-                    return AlertDialog(
-                      title: const Text("通知用デバイストークン"),
-                      content: Text(token ?? ""),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, "Cancel"),
-                          child: const Text("Cancel"),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, "OK"),
-                          child: const Text("OK"),
-                        ),
-                      ],
-                    );
-                  }
-                );
+                    context: context,
+                    builder: (_) {
+                      return AlertDialog(
+                        title: const Text("通知用デバイストークン"),
+                        content: Text(token ?? ""),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, "Cancel"),
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, "OK"),
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      );
+                    });
               },
             ),
             ElevatedButton(
-              child: const Text("In-App Messaging"),
-              onPressed: () async {
-                flutterLocalNotificationsPlugin.zonedSchedule(
-                  0,
-                  "アプリ内通知のテスト",
-                  "これはアプリ内通知のテストメッセージです",
-                  TZDateTime.now(UTC).add(const Duration(seconds: 1)),
-                  NotificationDetails(
-                    android: AndroidNotificationDetails(
-                      channel.id,
-                      channel.name,
-                      channelDescription: channel.description,
+                child: const Text("In-App Messaging"),
+                onPressed: () async {
+                  flutterLocalNotificationsPlugin.zonedSchedule(
+                    0,
+                    "アプリ内通知のテスト",
+                    "これはアプリ内通知のテストメッセージです",
+                    TZDateTime.now(UTC).add(const Duration(seconds: 1)),
+                    NotificationDetails(
+                      android: AndroidNotificationDetails(
+                        channel.id,
+                        channel.name,
+                        channelDescription: channel.description,
+                      ),
+                      iOS: const IOSNotificationDetails(
+                        presentAlert: true,
+                        presentBadge: true,
+                        presentSound: true,
+                      ),
                     ),
-                    iOS: const IOSNotificationDetails(
-                      presentAlert: true,
-                      presentBadge: true,
-                      presentSound: true,
-                    ),
-                  ),
-                  androidAllowWhileIdle: true,
-                  uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-                );
-              }
-            ),
+                    androidAllowWhileIdle: true,
+                    uiLocalNotificationDateInterpretation:
+                        UILocalNotificationDateInterpretation.absoluteTime,
+                  );
+                }),
             ElevatedButton(
                 child: const Text("WebView-Native Cookie Linkage"),
                 onPressed: () async {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CookieWidget()));
-                }
-            ),
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CookieWidget()));
+                }),
             ElevatedButton(
                 child: const Text("Open DynamicLink"),
                 onPressed: () async {
-                  const url = "https://test.test.test/link-test.html"; // FIXME write a valided URL.
+                  const url =
+                      "https://test.test.test/link-test.html"; // FIXME write a valided URL.
                   if (kDebugMode) {
                     print("url is $url");
                   }
-                  launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                }
-            ),
+                  launchUrl(Uri.parse(url),
+                      mode: LaunchMode.externalApplication);
+                }),
             ElevatedButton(
-                child: const Text("DynamicLink Parameter Check"),
+              child: const Text("DynamicLink Parameter Check"),
               onPressed: () async {
                 var text = "";
                 for (var key in parameters.keys) {
@@ -257,8 +272,7 @@ class MainPage extends StatelessWidget {
                           ),
                         ],
                       );
-                    }
-                );
+                    });
               },
             ),
           ],

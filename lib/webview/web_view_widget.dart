@@ -3,7 +3,9 @@ import "package:webview_cookie_manager/webview_cookie_manager.dart";
 import "package:webview_flutter/webview_flutter.dart";
 
 class WebViewWidget extends StatelessWidget {
-  const WebViewWidget({Key? key, required this.cookieManager, required this.url}) : super(key: key);
+  const WebViewWidget(
+      {Key? key, required this.cookieManager, required this.url})
+      : super(key: key);
   final WebviewCookieManager cookieManager;
   final String url;
 
@@ -18,7 +20,7 @@ class WebViewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     _clearCookies();
     return WebView(
-      initialUrl: this.url,
+      initialUrl: url,
       javascriptMode: JavascriptMode.unrestricted,
     );
   }
