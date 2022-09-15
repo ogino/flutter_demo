@@ -11,8 +11,9 @@ import "package:firebase_crashlytics/firebase_crashlytics.dart";
 import "package:firebase_performance/firebase_performance.dart";
 import "package:fcm_config/fcm_config.dart";
 import "package:flutter/scheduler.dart";
+import "package:shared_preferences/shared_preferences.dart";
 import "package:timezone/timezone.dart";
-import 'package:uni_links/uni_links.dart';
+import "package:uni_links/uni_links.dart";
 import "package:url_launcher/url_launcher.dart";
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -26,6 +27,7 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
 );
 
 Map<String, String> parameters = {};
+BuildContext? _context;
 
 Future<void> backGroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -37,7 +39,15 @@ Future<void> backGroundHandler(RemoteMessage message) async {
           "[BACKGROUND] Message also contained a notification: ${message.notification}");
     }
   }
+  final prefs = await SharedPreferences.getInstance();
+  message.data.forEach((key, value) async {
+    await prefs.setString(key, value);
+  });
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  if (_context != null) {
+    Navigator.push(_context!,
+        MaterialPageRoute(builder: (context) => const CookieWidget()));
+  }
 }
 
 void main() async {
@@ -45,15 +55,14 @@ void main() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-    final notificationsPlugin = flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
+    final notificationsPlugin =
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
-    await notificationsPlugin
-        ?.createNotificationChannel(channel);
+    await notificationsPlugin?.createNotificationChannel(channel);
     FirebaseMessaging.onBackgroundMessage(backGroundHandler);
     FCMConfig.instance.init(
         onBackgroundMessage: backGroundHandler, defaultAndroidChannel: channel);
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (kDebugMode) {
         print(
             "[FOREGROUND] Handling a FOREGROUND message: ${message.messageId}");
@@ -61,6 +70,14 @@ void main() async {
         if (message.notification != null) {
           print(
               "[FOREGROUND] Message also contained a notification: ${message.notification}");
+        }
+        final prefs = await SharedPreferences.getInstance();
+        message.data.forEach((key, value) async {
+          await prefs.setString(key, value);
+        });
+        if (_context != null) {
+          Navigator.push(_context!,
+              MaterialPageRoute(builder: (context) => const CookieWidget()));
         }
       }
     });
@@ -149,6 +166,7 @@ class MainPage extends StatelessWidget {
     SchedulerBinding.instance.addPostFrameCallback((_) => {
           checkTrackingTransparency(),
         });
+    _context = context;
     return Scaffold(
       appBar: AppBar(
         title: const Text("デモ コンテンツ"),
@@ -248,21 +266,62 @@ class MainPage extends StatelessWidget {
                       mode: LaunchMode.externalApplication);
                 }),
             ElevatedButton(
-              child: const Text("DynamicLink Parameter Check"),
+              child: const Text("DynamicLink Parameters Check"),
               onPressed: () async {
-                var text = "";
+                var dynamicLinkText = "";
                 for (var key in parameters.keys) {
-                  text += "$key : ${parameters[key]}\n";
+                  final value = parameters[key];
+                  if (kDebugMode) {
+                    print(
+                        "[DynamicLink Parameters] key = $key, value = $value");
+                  }
+                  dynamicLinkText += "$key : $value\n";
                 }
                 if (kDebugMode) {
-                  print("text is $text");
+                  print("dynamicLinkText is $dynamicLinkText");
                 }
                 showDialog<void>(
                     context: context,
                     builder: (_) {
                       return AlertDialog(
                         title: const Text("DynamicLinkパラメータ"),
-                        content: Text(text),
+                        content: Text(dynamicLinkText),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, "Cancel"),
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, "OK"),
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      );
+                    });
+              },
+            ),
+            ElevatedButton(
+              child: const Text("RemoteMessage Data Check"),
+              onPressed: () async {
+                var remoteMessagesText = "";
+                final prefs = await SharedPreferences.getInstance();
+                prefs.getKeys().forEach((key) {
+                  final value = prefs.getString(key);
+                  if (kDebugMode) {
+                    print("[RemoteMessage Data] key = $key, value = $value");
+                  }
+                  remoteMessagesText += "$key : $value\n";
+                });
+                if (kDebugMode) {
+                  print("remoteMessagesText is $remoteMessagesText");
+                }
+                await prefs.clear();
+                showDialog<void>(
+                    context: context,
+                    builder: (_) {
+                      return AlertDialog(
+                        title: const Text("RemoteMessage Data"),
+                        content: Text(remoteMessagesText),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, "Cancel"),
