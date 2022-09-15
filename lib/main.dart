@@ -45,9 +45,10 @@ void main() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-    await flutterLocalNotificationsPlugin
+    final notificationsPlugin = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin>();
+    await notificationsPlugin
         ?.createNotificationChannel(channel);
     FirebaseMessaging.onBackgroundMessage(backGroundHandler);
     FCMConfig.instance.init(
@@ -63,6 +64,7 @@ void main() async {
         }
       }
     });
+    await notificationsPlugin?.requestPermission();
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
       alert: true,
