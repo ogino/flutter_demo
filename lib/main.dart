@@ -1,6 +1,7 @@
 import "dart:async";
 import "dart:io";
 
+import "package:demo/pdf/pdf_view_widget.dart";
 import "package:demo/utils.dart";
 import "package:demo/webview/cookie_widget.dart";
 import "package:flutter/foundation.dart";
@@ -249,10 +250,35 @@ class MainPage extends StatelessWidget {
             ElevatedButton(
                 child: const Text("WebView-Native Cookie Linkage"),
                 onPressed: () async {
-                  Navigator.push(
+                  await Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const CookieWidget()));
+                }),
+            ElevatedButton(
+                child: const Text("PDF Viewer"),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (BuildContext context,
+                              Animation<double> animation,
+                              Animation<double> secondaryAnimation) =>
+                          const PdfViewWidget(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return const FadeUpwardsPageTransitionsBuilder()
+                            .buildTransitions(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PdfViewWidget()),
+                                context,
+                                animation,
+                                secondaryAnimation,
+                                child);
+                      },
+                    ),
+                  );
                 }),
             ElevatedButton(
                 child: const Text("Open DynamicLink"),
