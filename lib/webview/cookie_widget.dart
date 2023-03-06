@@ -41,24 +41,26 @@ class CookieWidget extends StatelessWidget {
                 if (kDebugMode) {
                   print("text is $text");
                 }
-                showDialog<void>(
-                    context: context,
-                    builder: (_) {
-                      return AlertDialog(
-                        title: const Text("Cookieデータ"),
-                        content: Text(text),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "Cancel"),
-                            child: const Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "OK"),
-                            child: const Text("OK"),
-                          ),
-                        ],
-                      );
-                    });
+                if (context.mounted) {
+                  showDialog<void>(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: const Text("Cookieデータ"),
+                          content: Text(text),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, "Cancel"),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, "OK"),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        );
+                      });
+                }
               },
             ),
           ],

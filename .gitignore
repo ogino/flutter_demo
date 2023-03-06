@@ -63,3 +63,4 @@ app.*.map.json
 /android/keystore.properties
 /fastlane/develop.keystore
 /firebase
+/.fvm

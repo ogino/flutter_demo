@@ -202,24 +202,26 @@ class MainPage extends StatelessWidget {
                 if (kDebugMode) {
                   print("token is ${token ?? ""}");
                 }
-                showDialog<void>(
-                    context: context,
-                    builder: (_) {
-                      return AlertDialog(
-                        title: const Text("通知用デバイストークン"),
-                        content: Text(token ?? ""),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "Cancel"),
-                            child: const Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "OK"),
-                            child: const Text("OK"),
-                          ),
-                        ],
-                      );
-                    });
+                if (context.mounted) {
+                  showDialog<void>(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: const Text("通知用デバイストークン"),
+                          content: Text(token ?? ""),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, "Cancel"),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, "OK"),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        );
+                      });
+                }
               },
             ),
             ElevatedButton(
@@ -342,24 +344,26 @@ class MainPage extends StatelessWidget {
                   print("remoteMessagesText is $remoteMessagesText");
                 }
                 await prefs.clear();
-                showDialog<void>(
-                    context: context,
-                    builder: (_) {
-                      return AlertDialog(
-                        title: const Text("RemoteMessage Data"),
-                        content: Text(remoteMessagesText),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "Cancel"),
-                            child: const Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, "OK"),
-                            child: const Text("OK"),
-                          ),
-                        ],
-                      );
-                    });
+                if (context.mounted) {
+                  showDialog<void>(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: const Text("RemoteMessage Data"),
+                          content: Text(remoteMessagesText),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, "Cancel"),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, "OK"),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        );
+                      });
+                }
               },
             ),
           ],
