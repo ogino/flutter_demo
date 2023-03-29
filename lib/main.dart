@@ -238,7 +238,7 @@ class MainPage extends StatelessWidget {
                         channel.name,
                         channelDescription: channel.description,
                       ),
-                      iOS: const IOSNotificationDetails(
+                      iOS: const DarwinNotificationDetails(
                         presentAlert: true,
                         presentBadge: true,
                         presentSound: true,

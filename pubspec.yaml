@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,30 +34,32 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
-  firebase_core: ^1.22.0
-  firebase_analytics: ^9.3.4
-  firebase_crashlytics: ^2.8.10
-  firebase_messaging: ^11.4.4
-  flutter_local_notifications: ^9.9.1
-  fcm_config: ^3.3.7
-  firebase_performance: ^0.8.3
-  advertising_id: ^2.3.0
-  app_tracking_transparency: ^2.0.2+4
-  device_info_plus: ^4.1.2
-  version: ^2.0.0
-  timezone: ^0.8.0
+  firebase_core: ^2.8.0
+  firebase_analytics: ^10.1.6
+  firebase_crashlytics: ^3.0.17
+  firebase_messaging: ^14.3.0
+  flutter_local_notifications: ^13.0.0
+  fcm_config: ^3.5.1
+  firebase_performance: ^0.9.0+16
+  advertising_id: ^2.4.0
+  app_tracking_transparency: ^2.0.3
+  device_info_plus: ^8.1.0
+  version: ^3.0.2
+  timezone: ^0.9.1
   get: ^4.6.5
-  webview_flutter: ^3.0.4
+  webview_flutter: ^4.0.7
   webview_cookie_manager: ^2.0.6
-  modal_bottom_sheet: ^2.1.2
-  url_launcher: ^6.1.5
+  modal_bottom_sheet: ^3.0.0-pre
+  url_launcher: ^6.1.10
   uni_links: ^0.5.1
-  shared_preferences: ^2.0.15
-  syncfusion_flutter_pdfviewer: ^20.2.50-beta
-  share_plus: ^4.4.0
+  shared_preferences: ^2.0.20
+  syncfusion_flutter_pdfviewer: ^21.1.35
+  share_plus: ^6.3.1
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
